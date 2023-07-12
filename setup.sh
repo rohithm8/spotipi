@@ -28,6 +28,13 @@ echo "Enter the full path to your spotify token:"
 read spotify_token_path
 
 install_path=$(pwd)
+authConfPath=$install_path/config/authConfig.cfg
+
+sudo touch $authConfigPath
+sudo echo "[DEFAULT]" >> $authConfigPath
+sudo echo "client_id = ${spotify_client_id}" >> $authConfigPath
+sudo echo "client_secret = ${spotify_client_secret}" >> $authConfigPath
+sudo echo "redirect_uri = ${spotify_redirect_uri}" >> $authConfigPath
 
 echo "Downloading rgb-matrix software setup:"
 curl https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/rgb-matrix.sh >rgb-matrix.sh
