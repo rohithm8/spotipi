@@ -1,7 +1,7 @@
 import logging
 import spotipy
 import spotipy.util as util
-
+import os
 import requests
 from io import BytesIO
 from PIL import Image
@@ -9,7 +9,10 @@ from PIL import Image
 import configparser
 
 config = configparser.ConfigParser()
-config.read('config/authConfig.cfg') # using config file instead of environment variables
+dir = os.path.dirname(__file__)
+filename = os.path.join(dir, '../config/authConfig.cfg')
+
+config.read(filename) # using config file instead of environment variables
 client_id = config['DEFAULT']['client_id']
 client_secret = config['DEFAULT']['client_secret']
 redirect_uri = config['DEFAULT']['redirect_uri']
