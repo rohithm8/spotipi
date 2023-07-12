@@ -3,6 +3,7 @@ import sys
 import logging
 from logging.handlers import RotatingFileHandler
 from getSongInfo import getSongInfo
+from noSongImage import noSongImage
 import requests
 from io import BytesIO
 from PIL import Image
@@ -62,9 +63,9 @@ if len(sys.argv) > 2:
 
           time.sleep(1)
         except Exception as e:
-          image = Image.open(default_image)
-          image.thumbnail((matrix.width, matrix.height), Image.LANCZOS)
-          matrix.SetImage(image.convert('RGB'))
+          # image = Image.open(default_image)
+          # image.thumbnail((matrix.width, matrix.height), Image.LANCZOS)
+          matrix.SetImage(noSongImage().convert('RGB'))
           print(e)
           time.sleep(1)
     except KeyboardInterrupt:
