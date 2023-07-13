@@ -1,6 +1,6 @@
 # Spotipi
 ### Overview
-This project is to display information on 32x32 led matrix from the Spotify web api.
+This project is to display information on 64x64 led matrix, including weather, time, and information from the Spotify web api.
 ### Getting Started
 * Create a new application within the [Spotify developer dashboard](https://developer.spotify.com/dashboard/applications) <br />
 * Edit the settings of the application within the dashboard.
@@ -30,6 +30,7 @@ sudo bash setup.sh
 ```
 navigate to http://<raspberrypi_hostname or ip_address> within a web browser
 ```
+Weather Icons in `images/` courtesy of [Rohith Manikonda](https://github.com/rohithm8)
 
 ### Final Product
 ![](https://i.redd.it/8s1cxqo5jfk51.jpg)
