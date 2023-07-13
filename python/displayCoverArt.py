@@ -42,22 +42,25 @@ if len(sys.argv) > 2:
     options.limit_refresh_rate_hz = int(config['DEFAULT']['refresh_rate'])
 
     default_image = os.path.join(dir, config['DEFAULT']['default_image'])
-    print(default_image)
+    weather_location = config['DEFAULT']['weather_location']
     matrix = RGBMatrix(options = options)
 
     prevSong    = ""
     currentSong = ""
+    prevTime    = ""
+    currentTime = ""
 
     try:
       while True:
         try:
           imageURL = getSongInfo(username, token_path)[1]
           currentSong = imageURL
+          size = (matrix.width, matrix.height)
 
           if ( prevSong != currentSong ):
             response = requests.get(imageURL)
             image = Image.open(BytesIO(response.content))
-            image.thumbnail((matrix.width, matrix.height), Image.LANCZOS)
+            image.thumbnail(size, Image.LANCZOS)
             matrix.SetImage(image.convert('RGB'))
             prevSong = currentSong
 
@@ -65,7 +68,10 @@ if len(sys.argv) > 2:
         except Exception as e:
           # image = Image.open(default_image)
           # image.thumbnail((matrix.width, matrix.height), Image.LANCZOS)
-          matrix.SetImage(noSongImage().convert('RGB'))
+          currentTime = time.strftime("%H:%M", time.localtime())
+          if prevTime != currentTime:
+            matrix.SetImage(noSongImage(size, weather_location).convert('RGB'))
+            prevTime = currentTime
           print(e)
           time.sleep(1)
     except KeyboardInterrupt:
