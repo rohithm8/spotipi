@@ -49,13 +49,13 @@ if len(sys.argv) > 2:
     currentSong = ""
     prevTime    = ""
     currentTime = ""
+    size = (matrix.width, matrix.height)
 
     try:
       while True:
         try:
           imageURL = getSongInfo(username, token_path)[1]
           currentSong = imageURL
-          size = (matrix.width, matrix.height)
 
           if ( prevSong != currentSong ):
             response = requests.get(imageURL)
