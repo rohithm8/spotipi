@@ -12,6 +12,9 @@ pip install pillow --upgrade
 echo "Installing flask library:"
 pip install flask --upgrade
 
+echo "Installing python_weather library:"
+pip install python_weather --upgrade
+
 echo "Enter your Spotify Client ID:"
 read spotify_client_id
 
