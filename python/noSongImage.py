@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont, ImageColor
+# import textwrap
 import python_weather
 import os
 from datetime import date, datetime
@@ -16,6 +17,7 @@ def noSongImage(size=(64, 64), weather_location="London"):
     draw = ImageDraw.Draw(image)
     dir = os.path.dirname(__file__)
     font = ImageFont.truetype(os.path.join(dir, '../fonts/5x7.ttf'), 8)
+    # smallfont = ImageFont.truetype(os.path.join(dir, '../fonts/3x5.ttf'), 8)
     timetext = time.strftime("%H:%M", time.localtime())
     datetext = date.today().strftime("%b %d")
     draw.text((1, 0), timetext, fill=ImageColor.getrgb("white"), font=font)
@@ -25,13 +27,15 @@ def noSongImage(size=(64, 64), weather_location="London"):
     tempText = str(currentWeather.temperature) + "C"
     sunSet = next(forecastWeather).astronomy.sun_set
     sunRise = next(forecastWeather).astronomy.sun_rise
-    if sunSet < datetime.now().time() < sunRise:
+    if sunRise < datetime.now().time() < sunSet:
         thumbFilename = os.path.join(dir, f'../images/{str(currentWeather.kind)}.png')
     else:
         thumbFilename = os.path.join(dir, f'../images/{str(currentWeather.kind)} Night.png')
     draw.text((64, 0), tempText, fill=ImageColor.getrgb("white"), font=font, anchor="ra")
     weatherIcon = Image.open(thumbFilename).convert("RGBA")
     image.alpha_composite(weatherIcon, (64-20, 8))
+    # calendarInfo = textwrap.fill("Multi line test text here" width=16)
+    # draw.multiline_text((1, 26), calendarInfo, fill=ImageColor.getrgb("white"), font=smallfont)
     return image
 
-# noSongImage().convert("RGB").save("noSongImage.png") # for testing
+# noSongImage((64,64), "London").convert("RGB").save("noSongImage.png") # for testing
