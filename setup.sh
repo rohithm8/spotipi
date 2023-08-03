@@ -15,6 +15,9 @@ pip install flask --upgrade
 echo "Installing python_weather library:"
 pip install python_weather --upgrade
 
+echo "Installing Google Calendar API:"
+pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib 
+
 echo "Enter your Spotify Client ID:"
 read spotify_client_id
 
