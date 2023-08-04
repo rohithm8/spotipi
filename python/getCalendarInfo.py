@@ -10,6 +10,7 @@ from googleapiclient.errors import HttpError
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 dir = os.path.join(os.path.dirname(__file__), '../config')
+coloridLUT = ("#ffffff", "#a4bdfc", "#7ae7bf", "#dbadff", "#ff887c", "#fbd75b", "#ffb878", "#46d6db", "#e1e1e1", "#5484ed", "#51b749", "#dc2127")
 
 
 def getCalendarInfo():
@@ -29,7 +30,7 @@ def getCalendarInfo():
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 os.path.join(dir, 'credentials.json'), SCOPES)
-            creds = flow.run_console()
+            creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open(os.path.join(dir, 'token.json'), 'w') as token:
             token.write(creds.to_json())
@@ -42,19 +43,21 @@ def getCalendarInfo():
         later = now + datetime.timedelta(days=1)
         events_result = service.events().list(calendarId='primary', timeMin=now.isoformat() + 'Z',
                                               timeMax=later.isoformat() + 'Z',
-                                              maxResults=1, singleEvents=True,
+                                              maxResults=3, singleEvents=True,
                                               orderBy='startTime').execute()
         events = events_result.get('items', [])
 
         if not events:
             # print('No upcoming events found.')
             return None
-
+        summarisedEvents = []
         # Prints the start and name of the next 10 events
         for event in events:
             start = event['start'].get('dateTime', event['start'].get('date'))
-            return (start, event['summary'])
-
+            end = event['end'].get('dateTime', event['end'].get('date'))
+            color = coloridLUT[int(event.get('colorId', 0))]
+            summarisedEvents.append((start, end, event['summary'], color))
+        return summarisedEvents
     except HttpError as error:
         print('An error occurred: %s' % error)
         return None
