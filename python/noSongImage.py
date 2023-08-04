@@ -31,16 +31,24 @@ def noSongImage(size=(64, 64), weather_location="London"):
     if sunRise < datetime.now().time() < sunSet:
         thumbFilename = os.path.join(dir, f'../images/{str(currentWeather.kind)}.png')
     else:
-        thumbFilename = os.path.join(dir, f'../images/{str(currentWeather.kind)} Night.png')
+        thumbFilename = os.path.join(dir, f'../images/{str(currentWeather.kind)} Night.png') # if it's night time, use the night icon
     draw.text((64, 0), tempText, fill=ImageColor.getrgb("white"), font=font, anchor="ra")
     weatherIcon = Image.open(thumbFilename).convert("RGBA")
     image.alpha_composite(weatherIcon, (64-20, 8))
     calendarInfo = getCalendarInfo()
+    lineQuota = 7 # 7 lines of text can be displayed
     if calendarInfo is not None:
-        calendarSummary = fill(calendarInfo[1], width=16)
-        calendarTime = calendarInfo[0][11:16]
-        draw.text((1, 21), calendarTime, fill=ImageColor.getrgb("gray"), font=smallfont)
-        draw.multiline_text((1, 29), calendarSummary, fill=ImageColor.getrgb("gray"), font=smallfont)
+        for event in calendarInfo:
+            calendarSummary = fill(event[2], width=16)
+            start, end = datetime.fromisoformat(event[0]).replace(tzinfo=None), datetime.fromisoformat(event[1]).replace(tzinfo=None)
+            calendarTime = "Now" if start < datetime.now() < end else start.strftime("%H:%M") # if the event is happening now, display "Now" instead of the start time
+            calendarItem = "\n".join((calendarTime, calendarSummary))
+            if lineQuota > calendarItem.count("\n"):
+                draw.multiline_text((1, 23 + (7-lineQuota)*6), calendarItem.upper(), fill=ImageColor.getrgb(event[3]+"b3"), font=smallfont, spacing=1)
+                lineQuota -= calendarItem.count("\n") + 1
+            else:
+                return image
     return image
 
-# noSongImage((64,64), "London").convert("RGB").save("noSongImage.png") # for testing
+if __name__ == '__main__':
+    noSongImage((64,64), "London").convert("RGB").save("noSongImage.png") # for testing
