@@ -40,7 +40,7 @@ def noSongImage(size=(64, 64), weather_location="London"):
     if calendarInfo is not None:
         for event in calendarInfo:
             calendarSummary = fill(event[2], width=16)
-            start, end = datetime.fromisoformat(event[0]).replace(tzinfo=None), datetime.fromisoformat(event[1]).replace(tzinfo=None)
+            start, end = [datetime.fromisoformat(event[i].replace('Z', '+00:00')).replace(tzinfo=None) for i in range(2)]
             calendarTime = "Now" if start < datetime.now() < end else start.strftime("%H:%M") # if the event is happening now, display "Now" instead of the start time
             calendarItem = "\n".join((calendarTime, calendarSummary))
             if lineQuota > calendarItem.count("\n"):
