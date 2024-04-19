@@ -37,7 +37,11 @@ def noSongImage(size=(64, 64), weather_location="London"):
     image.alpha_composite(weatherIcon, (64-20, 8))
     calendarInfo = getCalendarInfo()
     lineQuota = 7 # 7 lines of text can be displayed
-    if calendarInfo is not None:
+    if calendarInfo is None:
+        # None means there was an error, so display caution image
+        image.alpha_composite(Image.open((os.path.join(dir, '../images/NoCal.png'))).convert("RGBA"), (0, 32))
+        return image
+    elif calendarInfo:
         for event in calendarInfo:
             calendarSummary = fill(event[2], width=16)
             start, end = [datetime.fromisoformat(event[i].replace('Z', '+00:00')).replace(tzinfo=None) for i in range(2)]
