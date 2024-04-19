@@ -7,9 +7,13 @@ from noSongImage import noSongImage
 import requests
 from io import BytesIO
 from PIL import Image
-from rgbmatrix import RGBMatrix, RGBMatrixOptions
+try:
+  from rgbmatrix import RGBMatrix, RGBMatrixOptions
+except ImportError:
+  from RGBMatrixEmulator import RGBMatrix, RGBMatrixOptions
 import sys,os
 import configparser
+
 
 if len(sys.argv) > 2:
     username = sys.argv[1]
@@ -40,10 +44,14 @@ if len(sys.argv) > 2:
     options.gpio_slowdown = int(config['DEFAULT']['gpio_slowdown'])
     options.brightness = int(config['DEFAULT']['brightness'])
     options.limit_refresh_rate_hz = int(config['DEFAULT']['refresh_rate'])
+    matrix = RGBMatrix(options = options)
 
     default_image = os.path.join(dir, config['DEFAULT']['default_image'])
     weather_location = config['DEFAULT']['weather_location']
-    matrix = RGBMatrix(options = options)
+    schedule_start_str = config['DEFAULT']['schedule_start'] + time.strftime(", %m/%d/%Y", time.localtime())
+    schedule_start = time.strptime(schedule_start_str, "%H:%M, %m/%d/%Y")
+    schedule_end_str = config['DEFAULT']['schedule_end'] + time.strftime(", %m/%d/%Y", time.localtime())
+    schedule_end = time.strptime(schedule_end_str, "%H:%M, %m/%d/%Y") # don't judge me
 
     prevSong    = ""
     currentSong = ""
@@ -53,26 +61,28 @@ if len(sys.argv) > 2:
 
     try:
       while True:
-        try:
-          imageURL = getSongInfo(username, token_path)[1]
-          currentSong = imageURL
+        currentTime = time.strftime("%H:%M", time.localtime())
+        if schedule_start <= time.localtime() <= schedule_end:
+          try:
+            imageURL = getSongInfo(username, token_path)[1]
+            currentSong = imageURL
 
-          if ( prevSong != currentSong ):
-            response = requests.get(imageURL)
-            image = Image.open(BytesIO(response.content))
-            image.thumbnail(size, Image.LANCZOS)
-            matrix.SetImage(image.convert('RGB'))
-            prevSong = currentSong
+            if ( prevSong != currentSong ):
+              response = requests.get(imageURL)
+              image = Image.open(BytesIO(response.content))
+              image.thumbnail(size, Image.LANCZOS)
+              matrix.SetImage(image.convert('RGB'))
+              prevSong = currentSong
 
-          time.sleep(1)
-        except Exception as e:
-          # image = Image.open(default_image)
-          # image.thumbnail((matrix.width, matrix.height), Image.LANCZOS)
-          currentTime = time.strftime("%H:%M", time.localtime())
-          if prevTime != currentTime:
-            matrix.SetImage(noSongImage(size, weather_location).convert('RGB'))
-            prevTime = currentTime
-          print(e)
+            time.sleep(1)
+          except Exception as e:
+            if prevTime != currentTime:
+              matrix.SetImage(noSongImage(size, weather_location).convert('RGB'))         
+              prevTime = currentTime
+            print(e)
+            time.sleep(1)
+        else:
+          matrix.clear()
           time.sleep(1)
     except KeyboardInterrupt:
       sys.exit(0)

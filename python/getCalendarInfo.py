@@ -26,7 +26,11 @@ def getCalendarInfo():
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+            try:
+                creds.refresh(Request())
+            except Exception as e:
+                print(f'Error refreshing credentials: {e}')
+                return None
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 os.path.join(dir, 'credentials.json'), SCOPES)
@@ -46,18 +50,17 @@ def getCalendarInfo():
                                               maxResults=3, singleEvents=True,
                                               orderBy='startTime').execute()
         events = events_result.get('items', [])
-
-        if not events:
-            # print('No upcoming events found.')
-            return None
         summarisedEvents = []
-        # Prints the start and name of the next 10 events
-        for event in events:
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            end = event['end'].get('dateTime', event['end'].get('date'))
-            color = coloridLUT[int(event.get('colorId', 0))]
-            summarisedEvents.append((start, end, event['summary'], color))
-        return summarisedEvents
+        
+        # Prints the start and name of the next 10 events, if found
+        if events:
+            for event in events:
+                start = event['start'].get('dateTime', event['start'].get('date'))
+                end = event['end'].get('dateTime', event['end'].get('date'))
+                color = coloridLUT[int(event.get('colorId', 0))]
+                summarisedEvents.append((start, end, event['summary'], color))
+        # return summarisedEvents
+        return None
     except HttpError as error:
         print('An error occurred: %s' % error)
         return None
