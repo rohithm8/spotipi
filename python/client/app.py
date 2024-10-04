@@ -1,13 +1,15 @@
 # app.py
 
 # also importing the request module
+import sys, os
+
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 from flask import Flask, render_template, request, redirect, url_for
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow, Flow
-import sys, os
 import configparser
 
-# import dbus
+import dbus
 
 app = Flask(__name__)
 app.config["CACHE_TYPE"] = "null"
@@ -21,9 +23,9 @@ filename = os.path.join(dir, "rgb_options.ini")
 config = configparser.ConfigParser()
 config.read(filename)
 
-# sysbus = dbus.SystemBus()
-# systemd1 = sysbus.get_object("org.freedesktop.systemd1", "/org/freedesktop/systemd1")
-# manager = dbus.Interface(systemd1, "org.freedesktop.systemd1.Manager")
+sysbus = dbus.SystemBus()
+systemd1 = sysbus.get_object("org.freedesktop.systemd1", "/org/freedesktop/systemd1")
+manager = dbus.Interface(systemd1, "org.freedesktop.systemd1.Manager")
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
@@ -237,7 +239,6 @@ def callback():
     )
     flow.redirect_uri = url_for("callback", _external=True)
 
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
     https_authorization_url = request.url_root.replace("http://", "https://")
     print(request.url, request.url_root, request.host_url, request.base_url)
     flow.fetch_token(authorization_response=https_authorization_url)
@@ -247,4 +248,4 @@ def callback():
     return redirect(url_for("saved_config"))
 
 
-app.run(host="0.0.0.0", port=80)
+app.run(host="http://0.0.0.0", port=80)
