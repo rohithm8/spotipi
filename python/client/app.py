@@ -241,7 +241,9 @@ def callback():
     )
     flow.redirect_uri = url_for("callback", _external=True)
 
-    https_authorization_url = request.url_root.replace("http://", "https://")
+    https_authorization_url = request.url_root.replace("http://", "https://").replace(
+        ".local", ".com"
+    )
     flow.fetch_token(authorization_response=https_authorization_url)
     creds = flow.credentials
     with open(os.path.join(dir, "token.json"), "w") as token:
