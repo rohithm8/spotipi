@@ -5,22 +5,21 @@ import sys, os
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 from flask import Flask, render_template, request, redirect, url_for
-from flask_talisman import Talisman
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow, Flow
 import configparser
 
 import dbus
 
-app = Flask(__name__)
-ssl_context = tuple(os.path.join(dir, file) for file in ("cert.pem", "key.pem"))
-Talisman(app, force_https=True, ssl_context=ssl_context)
-app.config["CACHE_TYPE"] = "null"
-
 dir = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "config")
 )
 filename = os.path.join(dir, "rgb_options.ini")
+
+app = Flask(__name__)
+app.config["SSL_CERTFILE"] = os.path.join(dir, "cert.pem")
+app.config["SSL_KEYFILE"] = os.path.join(dir, "key.pem")
+app.config["CACHE_TYPE"] = "null"
 
 # Configuration for the matrix
 config = configparser.ConfigParser()
@@ -250,4 +249,4 @@ def callback():
     return redirect(url_for("saved_config"))
 
 
-app.run(host="0.0.0.0", port=80)
+app.run(host="0.0.0.0", port=80, ssl_context="adhoc")
