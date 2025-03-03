@@ -4,9 +4,7 @@
 import sys, os
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-from flask import Flask, render_template, request, redirect, url_for
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow, Flow
+from flask import Flask, render_template, request
 import configparser
 
 import dbus
@@ -216,39 +214,6 @@ def handle_schedule():
         schedule_start=request.form["schedule_start"],
         schedule_end=request.form["schedule_end"],
     )
-
-
-@app.route("/login")
-def login():
-    flow = InstalledAppFlow.from_client_secrets_file(
-        os.path.join(dir, "credentials.json"),
-        SCOPES,
-    )
-    flow.redirect_uri = url_for("callback", _external=True)
-    authorization_url, state = flow.authorization_url(
-        access_type="offline",
-        prompt="consent",
-    )
-
-    return redirect(authorization_url)
-
-
-@app.route("/callback")
-def callback():
-    flow = InstalledAppFlow.from_client_secrets_file(
-        os.path.join(dir, "credentials.json"),
-        SCOPES,
-    )
-    flow.redirect_uri = url_for("callback", _external=True)
-
-    https_authorization_url = request.url_root.replace("http://", "https://").replace(
-        ".local", ".com"
-    )
-    flow.fetch_token(authorization_response=https_authorization_url)
-    creds = flow.credentials
-    with open(os.path.join(dir, "token.json"), "w") as token:
-        token.write(creds.to_json())
-    return redirect(url_for("saved_config"))
 
 
 app.run(host="0.0.0.0", port=80, ssl_context="adhoc")
