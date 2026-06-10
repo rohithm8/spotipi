@@ -82,14 +82,6 @@ class Weather:
             return os.path.join(dir, f'../images/{weather_kind} Night.png')
 
 
-
-async def get_weather(weather_location="London"):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(f"https://wttr.is/{weather_location}?format=j2") as response:
-            return await response.json()
-
-
-
 def noSongImage(size=(64, 64), weather_location="London"):
     image = Image.new("RGBA", size)
     draw = ImageDraw.Draw(image)
@@ -97,7 +89,6 @@ def noSongImage(size=(64, 64), weather_location="London"):
     datetext = date.today().strftime("%b %d")
     draw.text((1, 0), timetext, fill=ImageColor.getrgb("white"), font=font)
     draw.text((1, 8), datetext, fill=ImageColor.getrgb("white"), font=font)
-    # weather_json = asyncio.run(get_weather(weather_location))
     weather_json = requests.get(f"https://wttr.in/{weather_location}?format=j2").json()
     weather = Weather(
         temperature=weather_json["current_condition"][0]["temp_C"],
