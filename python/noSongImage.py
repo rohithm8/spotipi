@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import requests
 from textwrap import fill
-import aiohttp
 import os.path
 from datetime import date, datetime
 import time
@@ -110,7 +109,12 @@ def noSongImage(size=(64, 64), weather_location="London"):
         for event in calendarInfo:
             calendarSummary = fill(event[2], width=16)
             start, end = [datetime.fromisoformat(event[i].replace('Z', '+00:00')).replace(tzinfo=None) for i in range(2)]
-            calendarTime = "Now" if start < datetime.now() < end else start.strftime("%H:%M") # if the event is happening now, display "Now" instead of the start time
+            if start < datetime.now() < end:
+                calendarTime = "Now"
+            elif start.date() == datetime.now().date():
+                calendarTime = start.strftime("%H:%M")
+            else:
+                calendarTime = start.strftime("%a %H:%M")
             calendarItem = "\n".join((calendarTime, calendarSummary))
             if lineQuota > calendarItem.count("\n"):
                 draw.multiline_text((1, 23 + (7-lineQuota)*6), calendarItem.upper(), fill=ImageColor.getrgb(event[3]+"b3"), font=smallfont, spacing=1)
